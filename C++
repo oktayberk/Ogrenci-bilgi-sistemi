@@ -1,0 +1,274 @@
+#include<iostream>
+#include<fstream>
+using namespace std;
+class own
+{
+public:
+    int idnum;
+    char name[50];
+    int age;
+    char address[50];
+    long contact;
+public:
+    virtual void getdata()
+    {
+        cout << "\nOgrenci numarasi giriniz: ";
+        cin >> idnum;
+        cout << "\nOgrenci adi giriniz: ";
+        cin >> name;
+        cout << "\nOgrenci yasi giriniz: ";
+        cin >> age;
+        cout << "\nOgrenci adresi giriniz: ";
+        cin >> address;
+        cout << "\nOgrencinin iletisim numarasi giriniz: ";
+        cin >> contact;
+    }
+    virtual void showdata() const
+    {
+        cout << "\nogrenci numarasi: " << idnum;
+        cout << "\nisim: " << name;
+        cout << "\nYas: " << age;
+        cout << "\nAdres: " << address;
+        cout << "\nIletisim numarasi: " << contact;
+    }
+    int getIDNum() const
+    {
+        return idnum;
+    }
+};
+class parents : public own
+{
+public:
+    char f_name[50];
+    char m_name[50];
+public:
+    void getdata()
+    {
+        cout << "\nBaba adi: ";
+        cin >> f_name;
+        cout << "\nAnne adi: ";
+        cin >> m_name;
+    }
+    void showdata() const
+    {
+        cout << "\nBaba adi: " << f_name;
+        cout << "\nAnne adi: " << m_name;
+    }
+};
+class academic : public own
+{
+public:
+    char university[50];
+    char department[50];
+    int semester;
+public:
+    void getdata()
+    {
+        cout << "\nOgrencin universite ismi giriniz: ";
+        cin >> university;
+        cout << "\nOgrencinin bolumunu giriniz: ";
+        cin >> department;
+        cout << "\nOgrencinin donemini giriniz: ";
+        cin >> semester;
+    }
+    void showdata() const
+    {
+        cout << "\nuniversite ismi: " << university;
+        cout << "\nOgrenci bolumu: " << department;
+        cout << "\nOgrenci donemi: " << semester;
+    }
+};
+
+void write_student();
+void display_all();
+void display_sp(int);
+void modify_student(int);
+void delete_student(int);
+
+void write_student()
+{
+    own st;
+    parents pt;
+    academic ac;
+    ofstream outFile;
+    outFile.open("student.dat", ios::binary | ios::app);
+    st.getdata();
+    pt.getdata();
+    ac.getdata();
+    outFile.write(reinterpret_cast<char*> (&st), sizeof(own));
+    outFile.write(reinterpret_cast<char*> (&pt), sizeof(parents));
+    outFile.write(reinterpret_cast<char*> (&ac), sizeof(academic));
+    outFile.close();
+    cout << "\n\nOgrenci bilgileri kaydedildi ";
+    cin.ignore();
+    cin.get();
+}
+void display_all()
+{
+    own st;
+    parents pt;
+    academic ac;
+    ifstream inFile;
+    inFile.open("student.dat", ios::binary);
+    if (!inFile)
+    {
+        cout << "Dosya acilamiyor!! Press any Key...";
+        cin.ignore();
+        cin.get();
+        return;
+    }
+    cout << "\n\n\n\t\tButun kayitleri goruntule\n\n";
+    while (inFile.read(reinterpret_cast<char*> (&st), sizeof(own)) && inFile.read(reinterpret_cast<char*> (&pt), sizeof(parents)) && inFile.read(reinterpret_cast<char*> (&ac), sizeof(academic)))
+    {
+        st.showdata();
+        pt.showdata();
+        ac.showdata();
+        cout << "\n\n====================================\n";
+    }
+    inFile.close();
+    cin.ignore();
+    cin.get();
+}
+void display_sp(int n)
+{
+    own st;
+    parents pt;
+    academic ac;
+    ifstream inFile;
+    inFile.open("student.dat", ios::binary);
+    if (!inFile)
+    {
+        cout << "Dosya acilamıyor Press any Key...";
+        cin.ignore();
+        cin.get();
+        return;
+    }
+    bool flag = false;
+    while (inFile.read(reinterpret_cast<char*> (&st), sizeof(own)) && inFile.read(reinterpret_cast<char*> (&pt), sizeof(parents)) && inFile.read(reinterpret_cast<char*> (&ac), sizeof(academic)))
+    {
+        if (st.getIDNum() == n)
+        {
+            st.showdata();
+            pt.showdata();
+            ac.showdata();
+            flag = true;
+        }
+    }
+    inFile.close();
+    if (flag == false)
+        cout << "\n\nKayit bulunamadi";
+    cin.ignore();
+    cin.get();
+}
+void modify_student(int n)
+{
+    bool found = false;
+    own st;
+    parents pt;
+    academic ac;
+    fstream File;
+    File.open("student.dat", ios::binary | ios::in | ios::out);
+    if (!File)
+    {
+        cout << "Dosya acilamıyor Press any Key...";
+        cin.ignore();
+        cin.get();
+        return;
+    }
+    while (!File.eof() && found == false)
+    {
+
+        File.read(reinterpret_cast<char*> (&st), sizeof(own)) && File.read(reinterpret_cast<char*> (&pt), sizeof(parents)) && File.read(reinterpret_cast<char*> (&ac), sizeof(academic));
+        if (st.getIDNum() == n)
+        {
+            st.showdata();
+            pt.showdata();
+            ac.showdata();
+            cout << "\n\nOgrenci hakkında yeni detaylar girin" << endl;
+            st.getdata();
+            pt.getdata();
+            ac.getdata();
+            int pos = (-1) * static_cast<int>(sizeof(st));
+            int pos1 = (-1) * static_cast<int>(sizeof(pt));
+            int pos2 = (-1) * static_cast<int>(sizeof(ac));
+            File.seekp(pos, ios::cur);
+            File.seekp(pos1, ios::cur);
+            File.seekp(pos2, ios::cur);
+            File.write(reinterpret_cast<char*> (&st), sizeof(own));
+            File.write(reinterpret_cast<char*> (&pt), sizeof(parents));
+            File.write(reinterpret_cast<char*> (&ac), sizeof(academic));
+            cout << "\n\n\t Kayit Duzenlendi";
+            found = true;
+        }
+    }
+    File.close();
+    if (found == false)
+        cout << "\n\n Kayit bulunamadi ";
+    cin.ignore();
+    cin.get();
+}
+void delete_student(int n)
+{
+    own st;
+    parents pt;
+    academic ac;
+    ifstream inFile;
+    inFile.open("student.dat", ios::binary);
+    if (!inFile)
+    {
+        cout << "Dosya acilamıyor Press any Key...";
+        cin.ignore();
+        cin.get();
+        return;
+    }
+    ofstream outFile;
+    outFile.open("Temp.dat", ios::out);
+    inFile.seekg(0, ios::beg);
+    while (inFile.read(reinterpret_cast<char*> (&st), sizeof(own)) && inFile.read(reinterpret_cast<char*> (&pt), sizeof(parents)) && inFile.read(reinterpret_cast<char*> (&ac), sizeof(academic)))
+    {
+        if (st.getIDNum() != n)
+        {
+            outFile.write(reinterpret_cast<char*> (&st), sizeof(own));
+            outFile.write(reinterpret_cast<char*> (&pt), sizeof(parents));
+            outFile.write(reinterpret_cast<char*> (&ac), sizeof(academic));
+        }
+    }
+    outFile.close();
+    inFile.close();
+    remove("student.dat");
+    rename("Temp.dat", "student.dat");
+    cout << "\n\n\tKayit silindi ..";
+    cin.ignore();
+    cin.get();
+}
+int main()
+{
+    char ch;
+    int num;
+    cout.setf(ios::fixed | ios::showpoint);
+    do
+    {
+        cout << "\--------------------------------------------------";
+        cout << "\n\n\t1.Ogrenci Kaydi";
+        cout << "\n\n\t2.Tum ogrenci bilgileri";
+        cout << "\n\n\t3.Ogrenci kaydi ara ";
+        cout << "\n\n\t4.ogrenci kaydi duzenle";
+        cout << "\n\n\t5.ogrenci kaydi sil";
+        cout << "\n\n\--------------------------------------------------";
+        cout << "\n\n\tLutfen seciminizi girin (1-5): ";
+        cin >> ch;
+        switch (ch)
+        {
+        case '1':   write_student(); break;
+        case '2':   display_all(); break;
+        case '3':   cout << "\n\n\tLutfen ogrenci numarasi girin: "; cin >> num;
+            display_sp(num); break;
+        case '4':   cout << "\n\n\tLutfen ogrenci numarasi girin: "; cin >> num;
+            modify_student(num); break;
+        case '5':   cout << "\n\n\tLutfen ogrenci numarasi girin: "; cin >> num;
+            delete_student(num); break;
+        default:    cout << "\a";
+        }
+    } while (ch != '6');
+    return 0;
+}
