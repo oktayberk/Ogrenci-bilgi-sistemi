@@ -1,14 +1,17 @@
 #include<iostream>
 #include<fstream>
 using namespace std;
+
 class own
 {
+
 public:
     int idnum;
     char name[50];
     int age;
     char address[50];
     long contact;
+    
 public:
     virtual void getdata()
     {
@@ -23,6 +26,7 @@ public:
         cout << "\nOgrencinin iletisim numarasi giriniz: ";
         cin >> contact;
     }
+    
     virtual void showdata() const
     {
         cout << "\nogrenci numarasi: " << idnum;
@@ -31,11 +35,13 @@ public:
         cout << "\nAdres: " << address;
         cout << "\nIletisim numarasi: " << contact;
     }
+    
     int getIDNum() const
     {
         return idnum;
     }
 };
+
 class parents : public own
 {
 public:
@@ -49,12 +55,14 @@ public:
         cout << "\nAnne adi: ";
         cin >> m_name;
     }
+    
     void showdata() const
     {
         cout << "\nBaba adi: " << f_name;
         cout << "\nAnne adi: " << m_name;
     }
 };
+
 class academic : public own
 {
 public:
@@ -84,7 +92,6 @@ void display_all();
 void display_sp(int);
 void modify_student(int);
 void delete_student(int);
-
 void write_student()
 {
     own st;
@@ -103,6 +110,7 @@ void write_student()
     cin.ignore();
     cin.get();
 }
+
 void display_all()
 {
     own st;
